@@ -1,27 +1,31 @@
 #include "myplaylist.h"
 #include <QContextMenuEvent>
 #include <QMenu>
-
+#include <QHeaderView>
 
 MyPlaylist::MyPlaylist(QWidget *parent) :
     QTableWidget(parent)
 {
-    setAttribute(Qt::WA_TranslucentBackground);
+    //setAttribute(Qt::WA_TranslucentBackground);
     setWindowTitle(tr("播放列表"));
     //设置为一个独立的窗口，且只有一个关闭按钮
-    setWindowFlags(Qt::Window | Qt::WindowTitleHint);
-    setFixedSize(200,200);
+    //setWindowFlags(Qt::Window | Qt::WindowTitleHint);
+    setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);//去掉窗体边框,不在任务栏显示图标
+    setFixedSize(400,400);
     setRowCount(0);//初始的行数为0
-    setColumnCount(2);//初始的列数为1
+    setColumnCount(3);//初始的列数为1
 
     //设置第一个标签
     QStringList list;
-    list << tr("歌曲") << tr("格式") ;
+    list << tr("作者")<<tr("歌曲") << tr("专辑") ;
     setHorizontalHeaderLabels(list);
 
     setSelectionMode(QAbstractItemView::SingleSelection);//设置只能选择单行
     setSelectionBehavior(QAbstractItemView::SelectRows);
-
+    this ->verticalHeader() ->setVisible(false);
+    this ->setEditTriggers(QAbstractItemView::NoEditTriggers);//设置内容不可编辑
+    //this ->setItemDelegate(new NoFocusDelegate());//去掉选中单元格的虚线
+    //this ->horizontalHeader() ->setHighlightSections(false);//点击表时不对表头行光亮（获取焦点）
     setShowGrid(false);//设置不显示网格
 }
 

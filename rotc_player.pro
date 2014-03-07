@@ -14,12 +14,17 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mywidget.cpp \
-    myplaylist.cpp
+    myplaylist.cpp \
+    mtag.cpp
 
 HEADERS  += mywidget.h \
-    myplaylist.h
+    myplaylist.h \
+    mtag.h
 
 FORMS    += mywidget.ui
 
 RESOURCES += \
     images.qrc
+INCLUDEPATH += /usr/local/include/taglib
+
+LIBS += -L/usr/local/lib -ltag

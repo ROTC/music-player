@@ -15,11 +15,13 @@
 #include <QToolButton>
 #include <QStringList>
 #include <QFileDialog>
+#include "mtag.h"
+#include <QDebug>
 
 MyWidget::MyWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MyWidget),
-    player_state_(QMediaPlayer::StoppedState),
+    tray_icon_(0),
     play_action_(0),
     stop_action_(0),
     skip_backward_action_(0),
@@ -29,6 +31,7 @@ MyWidget::MyWidget(QWidget *parent) :
     volume_slider_(0),
     progress_slider_(0),
     mute_button_(0),
+    player_state_(QMediaPlayer::StoppedState),
     player_(0),
     playlist_(0),
     player_muted_(false)
@@ -53,6 +56,7 @@ void MyWidget::InitPlayer()
 
     //设置窗口基本属性
     //this->setAttribute(Qt::WA_TranslucentBackground);
+    //setWindowFlags(Qt::FramelessWindowHint);//去掉窗体边框
     setWindowTitle(tr("MyPlayer音乐播放器"));
     setWindowIcon(QIcon(":/images/icon.png"));//从资源文件中招图标
     setFixedSize(400,200);
@@ -290,7 +294,7 @@ void MyWidget::ForwardClicked()
 void MyWidget::SetPlayListShown()
 {
     if(ui_playlist_->isHidden()) {
-        ui_playlist_->move(frameGeometry().topRight());//显示在主界面的下方
+        ui_playlist_->move(frameGeometry().bottomLeft());//显示在主界面的下方
         ui_playlist_->show();
     }
     else {
@@ -311,13 +315,27 @@ void MyWidget::OpenFile()
 
 void MyWidget::AddToPlaylist(const QStringList &fileNames)
 {
-    foreach (QString const &argument, fileNames) {
-        QString fileName = argument.split("/").last();
+    foreach (const QString &argument, fileNames) {
+        QByteArray ba = argument.toLatin1();
+        char* c_str = ba.data();
+        //qDebug()<<c_str;
+        mtag_file_t *file = mtag_file_new(c_str);
+        mtag_tag_t *tag = mtag_file_tag(file);
+        //QString fileName = argument.split("/").last();
+        QString author = mtag_tag_get(tag,"artist");
+        QString album = mtag_tag_get(tag,"album");
+        QString title = mtag_tag_get(tag,"title");
         int rownum = ui_playlist_->rowCount();
         ui_playlist_->insertRow(rownum);
-        ui_playlist_->setItem(rownum, 0, new QTableWidgetItem(fileName.split(".").front()));
-        ui_playlist_->setItem(rownum, 1, new QTableWidgetItem(fileName.split(".").last()));
-        ui_playlist_->setItem(rownum, 2, new QTableWidgetItem(fileName));
+        ui_playlist_->setItem(rownum, 0, new QTableWidgetItem(author));
+        ui_playlist_->setItem(rownum, 1, new QTableWidgetItem(title));
+        ui_playlist_->setItem(rownum, 2, new QTableWidgetItem(album));
+//        QString fileName = argument.split("/").last();
+//        int rownum = ui_playlist_->rowCount();
+//        ui_playlist_->insertRow(rownum);
+//        ui_playlist_->setItem(rownum, 0, new QTableWidgetItem(fileName.split(".").front()));
+//        ui_playlist_->setItem(rownum, 1, new QTableWidgetItem(fileName.split(".").last()));
+//       ui_playlist_->setItem(rownum, 2, new QTableWidgetItem(fileName));
         QFileInfo fileInfo(argument);
         if (fileInfo.exists()) {
             QUrl url = QUrl::fromLocalFile(fileInfo.absoluteFilePath());
