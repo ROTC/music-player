@@ -316,8 +316,8 @@ void MyWidget::OpenFile()
 void MyWidget::AddToPlaylist(const QStringList &fileNames)
 {
     foreach (const QString &argument, fileNames) {
-        QByteArray ba = argument.toLatin1();
-        char* c_str = ba.data();
+        QByteArray ba = argument.toUtf8();
+        const char* c_str = ba.constData();
         //qDebug()<<c_str;
         mtag_file_t *file = mtag_file_new(c_str);
         mtag_tag_t *tag = mtag_file_tag(file);
