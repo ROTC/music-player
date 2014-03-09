@@ -13,16 +13,22 @@ MyPlaylist::MyPlaylist(QWidget *parent) :
     setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);//去掉窗体边框,不在任务栏显示图标
     setFixedSize(400,400);
     setRowCount(0);//初始的行数为0
-    setColumnCount(3);//初始的列数为1
+    setColumnCount(4);//初始的列数为1
 
     //设置第一个标签
     QStringList list;
-    list << tr("作者")<<tr("歌曲") << tr("专辑") ;
+    list << tr("序号") << tr("歌手") << tr("歌曲") << tr("专辑") ;
     setHorizontalHeaderLabels(list);
 
+
+    horizontalHeader()->resizeSection(0,30);
+    horizontalHeader()->resizeSection(1,80);
+    horizontalHeader()->resizeSection(2,150);
+    horizontalHeader()->resizeSection(3,140);
     setSelectionMode(QAbstractItemView::SingleSelection);//设置只能选择单行
     setSelectionBehavior(QAbstractItemView::SelectRows);
     this ->verticalHeader() ->setVisible(false);
+    this ->horizontalHeader() ->setVisible(false);
     this ->setEditTriggers(QAbstractItemView::NoEditTriggers);//设置内容不可编辑
     //this ->setItemDelegate(new NoFocusDelegate());//去掉选中单元格的虚线
     //this ->horizontalHeader() ->setHighlightSections(false);//点击表时不对表头行光亮（获取焦点）

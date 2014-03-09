@@ -34,7 +34,8 @@ MyWidget::MyWidget(QWidget *parent) :
     player_state_(QMediaPlayer::StoppedState),
     player_(0),
     playlist_(0),
-    player_muted_(false)
+    player_muted_(false),
+    lrc_(0)
 {
     ui->setupUi(this);
     InitPlayer();
@@ -54,6 +55,7 @@ void MyWidget::InitPlayer()
     playlist_->setPlaybackMode(QMediaPlaylist::Loop);
     player_->setPlaylist(playlist_);
 
+    lrc_ = new MyLrc();
     //设置窗口基本属性
     //this->setAttribute(Qt::WA_TranslucentBackground);
     //setWindowFlags(Qt::FramelessWindowHint);//去掉窗体边框
@@ -171,6 +173,8 @@ void MyWidget::InitPlayer()
     SetVolume(player_->volume());
     SetMuted(player_muted_);
     ConnectActionToPlayer();
+
+    top_label_->setFocus();
 }
 
 void MyWidget::ConnectActionToPlayer()
@@ -304,7 +308,10 @@ void MyWidget::SetPlayListShown()
 
 void MyWidget::SetLrcShown()
 {
-
+    if(lrc_->isHidden())
+        lrc_->showNormal();
+    else
+        lrc_->hide();
 }
 
 void MyWidget::OpenFile()
@@ -318,18 +325,34 @@ void MyWidget::AddToPlaylist(const QStringList &fileNames)
     foreach (const QString &argument, fileNames) {
         QByteArray ba = argument.toUtf8();
         const char* c_str = ba.constData();
-        //qDebug()<<c_str;
         mtag_file_t *file = mtag_file_new(c_str);
         mtag_tag_t *tag = mtag_file_tag(file);
         //QString fileName = argument.split("/").last();
-        QString author = mtag_tag_get(tag,"artist");
-        QString album = mtag_tag_get(tag,"album");
+        QString artist = mtag_tag_get(tag,"artist");
         QString title = mtag_tag_get(tag,"title");
+        QString album = mtag_tag_get(tag,"album");
+        qDebug()<<c_str<<artist<<album<<title;
+
         int rownum = ui_playlist_->rowCount();
+
+        QTableWidgetItem *row_item = new QTableWidgetItem;
+        row_item->setTextAlignment(Qt::AlignCenter);
+        row_item->setText(QString::number(rownum+1));
+
+        QTableWidgetItem *artist_item = new QTableWidgetItem(artist);
+        artist_item->setTextAlignment(Qt::AlignCenter);
+
+        QTableWidgetItem *title_item = new QTableWidgetItem(title);
+        title_item->setTextAlignment(Qt::AlignCenter);
+
+        QTableWidgetItem *album_item = new QTableWidgetItem(album);
+        album_item->setTextAlignment(Qt::AlignCenter);
+
         ui_playlist_->insertRow(rownum);
-        ui_playlist_->setItem(rownum, 0, new QTableWidgetItem(author));
-        ui_playlist_->setItem(rownum, 1, new QTableWidgetItem(title));
-        ui_playlist_->setItem(rownum, 2, new QTableWidgetItem(album));
+        ui_playlist_->setItem(rownum, 0, row_item);
+        ui_playlist_->setItem(rownum, 1, artist_item);
+        ui_playlist_->setItem(rownum, 2, title_item);
+        ui_playlist_->setItem(rownum, 3, album_item);
 //        QString fileName = argument.split("/").last();
 //        int rownum = ui_playlist_->rowCount();
 //        ui_playlist_->insertRow(rownum);
@@ -389,7 +412,7 @@ void MyWidget::UpdateDurationInfo(qint64 currentInfo)
 void MyWidget::updateSongList(int index)
 {
     ui_playlist_->selectRow(index);
-    top_label_->setText(tr("正在播放: %1").arg(ui_playlist_->item(index, 0)->text()));
+    top_label_->setText(tr("正在播放: %1").arg(ui_playlist_->item(index, 2)->text()));
 }
 
 void MyWidget::tableClicked(int row)

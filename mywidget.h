@@ -7,6 +7,7 @@
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
 #include "myplaylist.h"
+#include "mylrc.h"
 
 QT_BEGIN_NAMESPACE
 class QAbstractButton;
@@ -75,6 +76,7 @@ private:
     bool player_muted_;   //muted state of the current media
     qint64 duration;
     MyPlaylist * ui_playlist_;
+    MyLrc *lrc_;
 };
 
 #endif // MYWIDGET_H
