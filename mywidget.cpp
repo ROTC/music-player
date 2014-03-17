@@ -211,6 +211,9 @@ void MyWidget::ConnectActionToPlayer()
     //
     connect(playlist_, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSongList(int)));
 
+    //清楚列表
+    connect(ui_playlist_,SIGNAL(play_list_clean()),this,SLOT(CleanSources()));
+
     connect(ui_playlist_, SIGNAL(cellClicked(int,int)), this, SLOT(tableClicked(int)));
 }
 
@@ -320,39 +323,44 @@ void MyWidget::OpenFile()
     AddToPlaylist(fileNames);
 }
 
+void MyWidget::LoadMusicList(const QString &argument)
+{
+    QByteArray ba = argument.toUtf8();
+    const char* c_str = ba.constData();
+    mtag_file_t *file = mtag_file_new(c_str);
+    mtag_tag_t *tag = mtag_file_tag(file);
+    //QString fileName = argument.split("/").last();
+    QString artist = mtag_tag_get(tag,"artist");
+    QString title = mtag_tag_get(tag,"title");
+    QString album = mtag_tag_get(tag,"album");
+    qDebug()<<c_str<<artist<<album<<title;
+
+    int rownum = ui_playlist_->rowCount();
+
+    QTableWidgetItem *row_item = new QTableWidgetItem;
+    row_item->setTextAlignment(Qt::AlignCenter);
+    row_item->setText(QString::number(rownum+1));
+
+    QTableWidgetItem *artist_item = new QTableWidgetItem(artist);
+    artist_item->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *title_item = new QTableWidgetItem(title);
+    title_item->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *album_item = new QTableWidgetItem(album);
+    album_item->setTextAlignment(Qt::AlignCenter);
+
+    ui_playlist_->insertRow(rownum);
+    ui_playlist_->setItem(rownum, 0, row_item);
+    ui_playlist_->setItem(rownum, 1, artist_item);
+    ui_playlist_->setItem(rownum, 2, title_item);
+    ui_playlist_->setItem(rownum, 3, album_item);
+}
+
 void MyWidget::AddToPlaylist(const QStringList &fileNames)
 {
     foreach (const QString &argument, fileNames) {
-        QByteArray ba = argument.toUtf8();
-        const char* c_str = ba.constData();
-        mtag_file_t *file = mtag_file_new(c_str);
-        mtag_tag_t *tag = mtag_file_tag(file);
-        //QString fileName = argument.split("/").last();
-        QString artist = mtag_tag_get(tag,"artist");
-        QString title = mtag_tag_get(tag,"title");
-        QString album = mtag_tag_get(tag,"album");
-        qDebug()<<c_str<<artist<<album<<title;
-
-        int rownum = ui_playlist_->rowCount();
-
-        QTableWidgetItem *row_item = new QTableWidgetItem;
-        row_item->setTextAlignment(Qt::AlignCenter);
-        row_item->setText(QString::number(rownum+1));
-
-        QTableWidgetItem *artist_item = new QTableWidgetItem(artist);
-        artist_item->setTextAlignment(Qt::AlignCenter);
-
-        QTableWidgetItem *title_item = new QTableWidgetItem(title);
-        title_item->setTextAlignment(Qt::AlignCenter);
-
-        QTableWidgetItem *album_item = new QTableWidgetItem(album);
-        album_item->setTextAlignment(Qt::AlignCenter);
-
-        ui_playlist_->insertRow(rownum);
-        ui_playlist_->setItem(rownum, 0, row_item);
-        ui_playlist_->setItem(rownum, 1, artist_item);
-        ui_playlist_->setItem(rownum, 2, title_item);
-        ui_playlist_->setItem(rownum, 3, album_item);
+        LoadMusicList(argument);
 //        QString fileName = argument.split("/").last();
 //        int rownum = ui_playlist_->rowCount();
 //        ui_playlist_->insertRow(rownum);
@@ -419,4 +427,16 @@ void MyWidget::tableClicked(int row)
 {
     playlist_->setCurrentIndex(row);
     player_->play();
+}
+
+void MyWidget::CleanSources()
+{
+    if(playlist_->clear())
+        return;
+    else
+    {
+        QMessageBox msgBox;
+        msgBox.setText("The list cannot be cleaned");
+        msgBox.exec();
+    }
 }

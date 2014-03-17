@@ -50,6 +50,7 @@ private slots:
     void StopClicked();
     void MuteClicked();
     void AddToPlaylist(const QStringList &fileNames);
+    void CleanSources();
     void durationChanged(qint64 duration);
     void positionChanged(qint64 progress);
     void updateSongList(int index);
@@ -58,7 +59,7 @@ private:
     void InitPlayer();
     void ConnectActionToPlayer();
     void UpdateDurationInfo(qint64 currentInfo);
-
+    void LoadMusicList(const QString& argument);
     Ui::MyWidget *ui;
     QSystemTrayIcon *tray_icon_;
     QAction *play_action_;
