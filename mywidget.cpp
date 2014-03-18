@@ -16,6 +16,7 @@
 #include <QStringList>
 #include <QFileDialog>
 #include "mtag.h"
+#include "DBModule.h"
 #include <QDebug>
 
 MyWidget::MyWidget(QWidget *parent) :
@@ -175,6 +176,8 @@ void MyWidget::InitPlayer()
     ConnectActionToPlayer();
 
     top_label_->setFocus();
+
+    DBModule::InitDB();
 }
 
 void MyWidget::ConnectActionToPlayer()
@@ -323,6 +326,14 @@ void MyWidget::OpenFile()
     AddToPlaylist(fileNames);
 }
 
+void MyWidget::LoadMusicList(const QStringList &list)
+{
+    foreach(const QString& argument,list)
+    {
+        LoadMusicList(argument);
+    }
+}
+
 void MyWidget::LoadMusicList(const QString &argument)
 {
     QByteArray ba = argument.toUtf8();
@@ -355,6 +366,8 @@ void MyWidget::LoadMusicList(const QString &argument)
     ui_playlist_->setItem(rownum, 1, artist_item);
     ui_playlist_->setItem(rownum, 2, title_item);
     ui_playlist_->setItem(rownum, 3, album_item);
+
+    DBModule::InsertLine(artist,title,album,argument);
 }
 
 void MyWidget::AddToPlaylist(const QStringList &fileNames)

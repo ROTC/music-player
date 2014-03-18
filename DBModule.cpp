@@ -44,8 +44,8 @@ void DBModule::CreateTable()
     QSqlQuery query;
     query.exec("drop table musicList");
 
-    query.exec("create table musicList (fileName varchar(50) primary key not null, "
-        "time varchar(10), filePath varchar(50))");
+    query.exec("create table musicList (artist varchar(15),fileName varchar(50) primary key not null, "
+        "album varchar(50),filepath varchar(50))");
 }
 
 bool DBModule::ReadFromDb(QStringList &list)
@@ -71,12 +71,18 @@ bool DBModule::ClearDB()
 bool DBModule::DeleteLine(const QString &filename)
 {
     QSqlQuery query;
-    query.exec("delete from musiclist wherer filename = ?");
+    query.prepare("delete from musiclist wherer filename = ?");
     query.bindValue(filename,QVariant::String);
     return query.exec();
 }
 
-bool DBModule::InsertLine(const QString &filename)
+bool DBModule::InsertLine(const QString& artist,const QString& filename,const QString& album,const QString& filepath)
 {
-    return true;
+    QSqlQuery query;
+    query.prepare("insert into musiclist values(?,?,?,?)");
+    query.bindValue(artist);
+    query.bindValue(filename);
+    query.bindValue(album);
+    query.bindValue(filepath);
+    return query.exec();
 }

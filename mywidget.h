@@ -60,6 +60,8 @@ private:
     void ConnectActionToPlayer();
     void UpdateDurationInfo(qint64 currentInfo);
     void LoadMusicList(const QString& argument);
+    void LoadMusicList(const QStringList& list);
+    void ReadFormDB();
     Ui::MyWidget *ui;
     QSystemTrayIcon *tray_icon_;
     QAction *play_action_;

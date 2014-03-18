@@ -15,7 +15,7 @@ public:
     static void CreateTable();
     static bool ClearDB();
     static bool DeleteLine(const QString &filename);
-    static bool InsertLine(const QString &filename);
+    static bool DBModule::InsertLine(const QString& artist,const QString& filename,const QString& album,const QString& filepath);
     static bool ReadFromDb(QStringList &list);				//从数据库中读出数据显示到音乐里列表中
 };
 
